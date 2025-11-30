@@ -1,4 +1,6 @@
 import { Resend } from "resend"
+import { getBaseUrl } from "./url-utils"
+import type { NextRequest } from "next/server"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -9,9 +11,13 @@ export async function sendDonationEmail(
   donorEmail: string,
   donorName: string,
   campaign: { title: string; slug: string },
-  amount: number
+  amount: number,
+  request?: NextRequest | Request | null
 ) {
   try {
+    const baseUrl = getBaseUrl(request)
+    const campaignUrl = `${baseUrl}/campaign/${campaign.slug}`
+    
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "noreply@tufund.com",
       to: donorEmail,
@@ -22,7 +28,7 @@ export async function sendDonationEmail(
           <p>Dear ${donorName},</p>
           <p>We are grateful for your generous donation of KSh ${amount.toLocaleString()} to <strong>${campaign.title}</strong>.</p>
           <p>Your contribution makes a real difference and helps us reach our fundraising goal.</p>
-          <p>You can view the campaign progress at: <a href="${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign.slug}">${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign.slug}</a></p>
+          <p>You can view the campaign progress at: <a href="${campaignUrl}">${campaignUrl}</a></p>
           <p>Thank you for your support!</p>
           <p>Best regards,<br>The TuFund Team</p>
         </div>
@@ -41,9 +47,13 @@ export async function sendProgressEmail(
   ownerEmail: string,
   ownerName: string,
   campaign: { title: string; current_amount: number; goal_amount: number; slug: string },
-  progress: number
+  progress: number,
+  request?: NextRequest | Request | null
 ) {
   try {
+    const baseUrl = getBaseUrl(request)
+    const campaignUrl = `${baseUrl}/campaign/${campaign.slug}`
+    
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "noreply@tufund.com",
       to: ownerEmail,
@@ -56,7 +66,7 @@ export async function sendProgressEmail(
           <p>Current amount raised: KSh ${Number(campaign.current_amount).toLocaleString()}</p>
           <p>Goal: KSh ${Number(campaign.goal_amount).toLocaleString()}</p>
           <p>Keep sharing your campaign to reach your goal!</p>
-          <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign.slug}">View Campaign</a></p>
+          <p><a href="${campaignUrl}">View Campaign</a></p>
           <p>Best regards,<br>The TuFund Team</p>
         </div>
       `,

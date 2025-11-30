@@ -4,6 +4,7 @@ import { donationSchema } from "@/lib/validations"
 import { getCampaignById, createDonation, createAuditLog } from "@/lib/db/queries"
 import { prisma } from "@/lib/db/prisma"
 import crypto from "crypto"
+import { getBaseUrl } from "@/lib/url-utils"
 
 /**
  * POST /api/donate/paystack
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
         donor_email,
         amount,
         reference,
+        request, // Pass request for dynamic URL
         {
           donation_id: donation.id,
           campaign_id,

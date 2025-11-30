@@ -55,7 +55,8 @@ export async function POST(request: NextRequest) {
         donation.donor_email,
         donation.donor_name || "Donor",
         campaign,
-        Number(donation.amount)
+        Number(donation.amount),
+        request
       )
     }
 

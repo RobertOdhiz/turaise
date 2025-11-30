@@ -1,5 +1,7 @@
 import axios from "axios"
 import crypto from "crypto"
+import { getBaseUrl } from "./url-utils"
+import type { NextRequest } from "next/server"
 
 /**
  * Initialize Paystack payment transaction
@@ -8,6 +10,7 @@ export async function initializePaystackTransaction(
   email: string,
   amount: number, // Amount in kobo (smallest currency unit) - for Naira, or in cents for other currencies
   reference: string,
+  request?: NextRequest | Request | null,
   metadata?: Record<string, any>
 ): Promise<any> {
   const secretKey = process.env.PAYSTACK_SECRET_KEY
@@ -23,13 +26,17 @@ export async function initializePaystackTransaction(
   // For other currencies, adjust accordingly
   const amountInKobo = Math.round(amount * 100)
 
+  // Get dynamic base URL from request
+  const baseUrl = getBaseUrl(request)
+  const callbackUrl = process.env.PAYSTACK_CALLBACK_URL || `${baseUrl}/api/donate/paystack/callback`
+
   const url = "https://api.paystack.co/transaction/initialize"
 
   const payload = {
     email,
     amount: amountInKobo,
     reference,
-    callback_url: process.env.PAYSTACK_CALLBACK_URL || `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/donate/paystack/callback`,
+    callback_url: callbackUrl,
     metadata: metadata || {},
   }
 

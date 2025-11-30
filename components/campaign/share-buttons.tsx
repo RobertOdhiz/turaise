@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Share2, MessageCircle, Mail } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import { getClientBaseUrl } from "@/lib/url-utils"
 
 interface Campaign {
   id: string
@@ -15,10 +16,8 @@ interface ShareButtonsProps {
 }
 
 export function ShareButtons({ campaign }: ShareButtonsProps) {
-  // Use environment variable or construct URL safely
-  const baseUrl = typeof window !== "undefined" 
-    ? window.location.origin 
-    : (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000")
+  // Use dynamic base URL from current location
+  const baseUrl = getClientBaseUrl()
   const campaignUrl = `${baseUrl}/campaign/${campaign.slug}`
   const shareText = `Help support ${campaign.title}! Check out this campaign: ${campaignUrl}`
 

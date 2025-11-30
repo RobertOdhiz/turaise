@@ -3,6 +3,7 @@ import Stripe from "stripe"
 import { donationSchema } from "@/lib/validations"
 import { getCampaignById, createDonation, createAuditLog } from "@/lib/db/queries"
 import { prisma } from "@/lib/db/prisma"
+import { getBaseUrl } from "@/lib/url-utils"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2024-11-20.acacia",
@@ -81,8 +82,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign.slug}?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/campaign/${campaign.slug}?canceled=true`,
+      success_url: `${getBaseUrl(request)}/campaign/${campaign.slug}?success=true`,
+      cancel_url: `${getBaseUrl(request)}/campaign/${campaign.slug}?canceled=true`,
       metadata: {
         donation_id: donation.id,
         campaign_id: campaign.id,
