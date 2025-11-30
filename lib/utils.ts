@@ -60,12 +60,31 @@ export function calculateProgress(current: number, goal: number): number {
 
 /**
  * Sanitize HTML content
+ * Server-side: Uses sanitize-html (no jsdom dependency)
+ * Client-side: Uses DOMPurify
  */
 export async function sanitizeHtml(html: string): Promise<string> {
   if (typeof window === "undefined") {
-    const DOMPurify = await import("isomorphic-dompurify")
-    return DOMPurify.default.sanitize(html)
+    // Server-side: Use sanitize-html which doesn't require jsdom
+    const sanitizeHtmlLib = await import("sanitize-html")
+    return sanitizeHtmlLib.default(html, {
+      allowedTags: [
+        "p", "br", "strong", "em", "u", "s", "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li", "blockquote", "a", "img", "div", "span"
+      ],
+      allowedAttributes: {
+        a: ["href", "title", "target"],
+        img: ["src", "alt", "title", "width", "height"],
+        div: ["class"],
+        span: ["class"],
+      },
+      allowedSchemes: ["http", "https", "mailto"],
+      allowedSchemesByTag: {
+        img: ["http", "https", "data"],
+      },
+    })
   }
+  // Client-side: Use DOMPurify
   const DOMPurify = (await import("dompurify")).default
   return DOMPurify.sanitize(html)
 }
@@ -88,6 +107,7 @@ export function formatDate(date: Date | string): string {
  * Uses date-fns for consistent formatting
  */
 export function formatDateReadable(date: Date | string): string {
+  // Use dynamic import to avoid ESM issues
   const { format } = require("date-fns")
   const d = typeof date === "string" ? new Date(date) : date
   return format(d, "MMM d, yyyy")
