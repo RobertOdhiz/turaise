@@ -1,0 +1,152 @@
+// Prisma schema file for Neon PostgreSQL
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum types
+enum CampaignStatus {
+  active
+  closed
+  paused
+}
+
+enum PaymentMethod {
+  paystack
+  card
+}
+
+enum AuditAction {
+  donation
+  campaign_created
+  campaign_updated
+  withdrawal_requested
+}
+
+// Users table
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  phone      String?
+  full_name  String?
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  auth_user           AuthUser?
+  campaigns           Campaign[]
+  withdrawal_requests WithdrawalRequest[]
+  audit_logs          AuditLog[]
+
+  @@map("users")
+}
+
+// Auth users table (for password storage)
+model AuthUser {
+  id            String   @id @default(uuid())
+  user_id       String   @unique
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([user_id])
+  @@map("auth_users")
+}
+
+// Campaigns table
+model Campaign {
+  id             String         @id @default(uuid())
+  user_id        String
+  slug           String         @unique
+  title          String
+  goal_amount    Decimal        @db.Decimal(12, 2)
+  current_amount Decimal        @default(0) @db.Decimal(12, 2)
+  description    String
+  image_url      String?
+  category       String
+  status         CampaignStatus @default(active)
+  created_at     DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime       @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  user                User                @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  donations           Donation[]
+  withdrawal_requests WithdrawalRequest[]
+  audit_logs          AuditLog[]
+
+  @@index([user_id])
+  @@index([slug])
+  @@index([status])
+  @@map("campaigns")
+}
+
+// Donations table
+model Donation {
+  id             String        @id @default(uuid())
+  campaign_id    String
+  donor_name     String?
+  donor_email    String?
+  donor_phone    String?
+  amount         Decimal       @db.Decimal(12, 2)
+  payment_method PaymentMethod
+  payment_id     String?
+  verified       Boolean       @default(false)
+  ip_address     String?
+  created_at     DateTime      @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  campaign Campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  @@index([campaign_id])
+  @@index([verified])
+  @@index([payment_id])
+  @@map("donations")
+}
+
+// Audit logs table
+model AuditLog {
+  id          String      @id @default(uuid())
+  user_id     String?
+  campaign_id String?
+  action      AuditAction
+  details     Json?
+  ip_address  String?
+  created_at  DateTime    @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user     User?     @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  campaign Campaign? @relation(fields: [campaign_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([campaign_id])
+  @@map("audit_logs")
+}
+
+// Withdrawal requests table
+model WithdrawalRequest {
+  id           String   @id @default(uuid())
+  campaign_id  String
+  user_id      String
+  amount       Decimal  @db.Decimal(12, 2)
+  bank_account String
+  reason       String
+  status       String   @default("pending")
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  user     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  campaign Campaign @relation(fields: [campaign_id], references: [id], onDelete: Cascade)
+
+  @@map("withdrawal_requests")
+}
