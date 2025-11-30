@@ -17,7 +17,7 @@ interface CampaignReportModalProps {
   children: React.ReactNode
 }
 
-export function CampaignReportModal({
+function CampaignReportModalComponent({
   campaignId,
   children,
 }: CampaignReportModalProps) {
@@ -62,4 +62,7 @@ export function CampaignReportModal({
     </Dialog>
   )
 }
+
+export const CampaignReportModal = CampaignReportModalComponent
+export default CampaignReportModalComponent
 

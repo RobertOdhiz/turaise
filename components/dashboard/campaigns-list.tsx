@@ -7,7 +7,15 @@ import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { formatCurrency, calculateProgress } from "@/lib/utils"
 import { Download, Eye } from "lucide-react"
-import { CampaignReportModal } from "@/components/dashboard/campaign-report-modal"
+import dynamic from "next/dynamic"
+
+// Dynamically import to avoid SSR issues with @react-pdf/renderer
+const CampaignReportModal = dynamic(
+  () => import("@/components/dashboard/campaign-report-modal"),
+  {
+    ssr: false,
+  }
+)
 
 interface Campaign {
   id: string
