@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { getCampaignsByUserId } from "@/lib/db/queries"
 
+export const dynamic = "force-dynamic"
+
 /**
  * GET /api/campaigns/user
  * Get user's campaigns

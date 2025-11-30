@@ -31,7 +31,7 @@ export function CampaignsList({ campaigns }: CampaignsListProps) {
       <Card>
         <CardContent className="py-12 text-center">
           <p className="text-muted-foreground mb-4">
-            You haven't created any campaigns yet.
+            You haven&apos;t created any campaigns yet.
           </p>
           <Link href="/dashboard/create">
             <Button>Create Your First Campaign</Button>

@@ -7,11 +7,12 @@ import type {
   Donation, 
   AuditLog, 
   WithdrawalRequest,
+  PaymentMethod,
   Prisma 
 } from "@prisma/client"
 
 // Re-export Prisma types for convenience
-export type { User, Campaign, Donation, AuditLog, WithdrawalRequest } from "@prisma/client"
+export type { User, Campaign, Donation, AuditLog, WithdrawalRequest, PaymentMethod } from "@prisma/client"
 
 /**
  * Auth users queries (password storage)
@@ -177,7 +178,7 @@ export async function createDonation(data: {
       donor_email: data.donor_email || null,
       donor_phone: data.donor_phone || null,
       amount: data.amount,
-      payment_method: data.payment_method,
+      payment_method: data.payment_method as PaymentMethod,
       payment_id: data.payment_id || null,
       ip_address: data.ip_address || null,
     },

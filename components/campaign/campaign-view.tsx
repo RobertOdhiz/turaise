@@ -12,6 +12,7 @@ import { ShareButtons } from "@/components/campaign/share-buttons"
 interface Campaign {
   id: string
   title: string
+  slug: string
   goal_amount: number
   current_amount: number
   description: string

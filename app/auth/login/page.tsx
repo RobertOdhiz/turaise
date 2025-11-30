@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
@@ -16,7 +16,7 @@ import type { z } from "zod"
 
 type LoginForm = z.infer<typeof loginSchema>
 
-export default function LoginPage() {
+function LoginFormContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
@@ -110,7 +110,7 @@ export default function LoginPage() {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            <span className="text-muted-foreground">Don't have an account? </span>
+            <span className="text-muted-foreground">Don&apos;t have an account? </span>
             <Link href="/auth/signup" className="text-primary hover:underline">
               Sign up
             </Link>
@@ -118,6 +118,22 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+        <Card className="w-full max-w-md">
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <LoginFormContent />
+    </Suspense>
   )
 }
 

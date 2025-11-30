@@ -15,7 +15,12 @@ export default async function CampaignsPage() {
         </p>
       </div>
       {campaigns && campaigns.length > 0 ? (
-        <CampaignsList campaigns={campaigns} />
+        <CampaignsList campaigns={campaigns.map(c => ({
+          ...c,
+          goal_amount: Number(c.goal_amount),
+          current_amount: Number(c.current_amount),
+          created_at: c.created_at.toISOString(),
+        }))} />
       ) : (
         <Card>
           <CardContent className="py-12 text-center">

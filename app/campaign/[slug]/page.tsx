@@ -41,17 +41,28 @@ export default async function CampaignPage({
   // Sanitize description on server side to prevent hydration mismatch
   const sanitizedDescription = await sanitizeHtml(campaign.description)
 
-  // Create campaign object with sanitized description
+  // Create campaign object with sanitized description and convert types
   const campaignWithSanitizedDescription = {
     ...campaign,
     description: sanitizedDescription,
+    goal_amount: Number(campaign.goal_amount),
+    current_amount: Number(campaign.current_amount),
+    created_at: campaign.created_at.toISOString(),
+    slug: campaign.slug,
   }
+
+  // Convert donations to match component interface
+  const formattedDonations = (donations || []).map((donation) => ({
+    ...donation,
+    amount: Number(donation.amount),
+    created_at: donation.created_at.toISOString(),
+  }))
 
   return (
     <div className="min-h-screen">
       <CampaignView 
         campaign={campaignWithSanitizedDescription} 
-        donations={donations || []} 
+        donations={formattedDonations} 
       />
       <DonationForm campaignId={campaign.id} />
     </div>

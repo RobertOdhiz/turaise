@@ -33,7 +33,12 @@ export default async function DashboardPage() {
           </Button>
         </Link>
       </div>
-      <CampaignsList campaigns={campaigns || []} />
+      <CampaignsList campaigns={(campaigns || []).map(c => ({
+        ...c,
+        goal_amount: Number(c.goal_amount),
+        current_amount: Number(c.current_amount),
+        created_at: c.created_at.toISOString(),
+      }))} />
     </div>
   )
 }
